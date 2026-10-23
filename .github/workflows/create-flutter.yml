@@ -1,6 +1,6 @@
 name: Create Flutter Base
 
-on:
+'on':
 workflow_dispatch:
 
 permissions:
