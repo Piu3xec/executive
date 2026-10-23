@@ -1,36 +1,29 @@
-name: Create Flutter Base
+name: Flutter Base Generator
 
-'on':
-workflow_dispatch:
+on: [workflow_dispatch]
 
-permissions:
-contents: write
-
-jobs:
-create-project:
+jobs
+generate
 runs-on: ubuntu-latest
+contents: write
 
 steps:
   - name: Checkout repository
     uses: actions/checkout@v4
 
-  - name: Install Flutter
+  - name: Setup Flutter
     uses: subosito/flutter-action@v2
     with:
       channel: stable
 
   - name: Generate Flutter project
     run: |
-      flutter create \
-        --platforms=android \
-        --org com.vionaa \
-        --project-name vionaa_flutter \
-        flutter_project
+      flutter create --platforms=android --org com.vionaa --project-name vionaa_flutter flutter_project
 
-  - name: Commit Flutter project
+  - name: Save project to GitHub
     run: |
       git config user.name "github-actions[bot]"
       git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       git add flutter_project
-      git commit -m "Create original Flutter base" || echo "Nothing to commit"
+      git commit -m "Generate Flutter base"
       git push
