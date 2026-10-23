@@ -1,0 +1,59 @@
+name: Flutter Base Builder
+
+on: workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate Flutter Project
+        run: |
+          flutter create \
+            --platforms=android \
+            --org com.vionaa \
+            --project-name vionaa_flutter \
+            flutter_project
+
+      - name: Save Source to Repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f flutter_project/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Generate Flutter base"
+            git push
+          fi
+
+      - name: Install Dependencies
+        working-directory: flutter_project
+        run: flutter pub get
+
+      - name: Build Debug APK
+        working-directory: flutter_project
+        run: flutter build apk --debug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VionaaFlutter-APK
+          path: flutter_project/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 30
